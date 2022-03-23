@@ -1,0 +1,355 @@
+System Architecture for FLUX (High Level)
+
+NOTE: This is a brain storming session upon which a system can be built, it will evolve as necessary, from this
+  a proper architecture document can be gathered. This would be a WIP subject to changes.
+
+System Overview:
+- Mobile and Web Application in the cloud to manage vehicle fleet data to be uploaded and processed, a user can
+  access their data, receive reports and other data, make payments, view how much they've saved at various points,
+- Back end handles application requests through APIs and runs background process of diverse types
+- Vehicle Devices upload data to where they upload, Backend runs process to download these data periodically or upon
+  reception of an event 
+- Financials is handled by the backend to perform diverse operations
+
+Work Flow, main use case:
+- A user goes into Flux site and purchases access to a vehicle
+- User drives vehicle
+- Vehicle generates Telematics data which is eventually uploaded
+- System downloads and processes data
+- System notifies user to make a payment
+- System prepares report and sends it to the user via email
+- User reads report and appears very happy from all the savings ;-)
+
+Other use cases:
+- User can view his/her data
+- User can update data
+- User can delete their data, in this case only when status can allow it and upon approval
+- A user can pay their bill
+- The system can send a report to the user
+- A device can upload data to the cloud
+- etc...more can be deduced from information below, in the operations section...
+  
+TECHNOLOGIES:
+- Backend: Java
+- Frontend: AngularJS, 
+    Initially (maybe, if time is short) Dart (because I can prototype this very fast)
+- Database: SQL:DataStore, nosql
+- Cloud: Google Stack  
+- Security: RBAC + Attribute based extensions
+  
+----------------------------------------------------------------------------------------------------------  
+COMPONENTS:
+
+Applications:
+- Web
+- Mobile
+- (Future) Email, an email processor can perform limited functionality, such as obtain information via email,
+  depends on need and approval
+- (Future) Notifications about road conditions, using existing public APIs
+- (Future) For company purchasing of fleets, driver metrics, insurance companies really like these
+  
+Front End:
+- Uniform (as much as possibe) front end for mobile and web based application.
+- Admin Module for data should be as much as possible automatically generated from schema, once we have a working template
+- For other functionality it should be very simple for the user while performing functionaiity in the client (front-end) as
+  much as possible
+- Should validate all input even though the server would do this eventually, the input validation parameters should be dictated
+  by the server so that changes are automatic
+- Web storage should be used to keep track of users' work so as not to loose it if there is a failure
+- Should use a modern interface that is aesthetically attractive and in line with company's brand and image
+- Will have a computationally light polling interface for events sent from the server
+- Should follow the modern paradign of a one page web application, to improve efficiency and speed
+- Functionality should be made available depending on the user's roles, for example a system admin will have a view to all functionaiity,
+  a manager can only manage his/her own data or fleet, while a regular user has only very limited functionality to edit their own data, view their reports, invoices, make a payment, etc... (eventually we should setup autopay as many companies do)
+
+APIs:
+- Financial
+- Telematics
+- Data Management
+
+Databases:
+- Google sql, for relational data upon which 'most' reports and functionality will be based
+- nosql, google's DataStore, will receive a payload from device metrics which will be processed and data imported to sql
+  this allows for very fast processing by the server, in such a way that allows for device diversity withough having to change
+  code
+
+Modules:
+- Telematics (upload data, 
+- Payments (send payment, 
+- Accounting [light], (Can trigger send notif for payment, keep track of savings for reports, etc...
+- Data Managements (Users, Addresses, Vehicles, Devices, Payments, Invoices, 
+
+Actors: (roles)
+- User (customer)
+- Administrator
+- System Administrator
+- Vehicle Device (Vehicle)
+
+Operations:
+- Purchase Vehicle
+- Process Payment
+- Vehicle Device Data Upload
+- View Vehicle on Map
+- View Reports
+- View Vehicle Data (Distance, Economy, etc...
+- View Device Metrics
+- View Vehicle Data
+NOTE: Device and Vehicle can be used interchangeably, names of functions to be standardized
+NOTE: Operations can be performed by Actors, restrictions apply as to who can do what logically
+
+Background Operations:
+- Process device data
+- Send reminder to user
+- Send Invoice to user
+- Archive old data 
+- Create Reports
+- Calculate Metrics
+- Reindex databases
+- Destroy all caches
+- Create Periodic Reports (process data and reports that we know would be used thus avoiding wait times), for example,
+  it can create reports for payment notification or user reports containing metrics or other vehicle data
+- Notify (User, Admin, Vehicle? (there is an API that can notify users of dangers on the road depending on where they are)
+NOTE: Some background operations will produce formated documents, pdf files and such that will be accessible in the cloud
+  file system, to access the system will provide the user with a timed signed url for security reasons
+
+* Device data uploads:
+- Apparently some devices send their data periodically to their respective manufacturer site, so that their data can
+  be downloaded via an API or another way
+- Are some of these data uploaded via a mobile app, are there any other means for this
+* Device data downloads:
+- There must be appropriate download procedures as per device type
+- These procedures will be triggered by the backend in order to receive and process data in a timely manner
+
+----------------------------------------------------------------------------------------------------------  
+CONCEPTS:
+
+Code Generation:
+- Stored procedures aren't supported, however GCP functions can be automatically generated from schema
+- CRUDL handling code will be generated from schema
+
+Data Management:
+- All data is handled uniformly by the same code with the operations: CRUDL (Create, Retrieve, Update, Delete and List)
+- Validation, all data is validated at their (USER, includes Device) entry points
+- Some data, such as device payload, reports, invoices, etc... could be stored in a cloud file system, instead of
+  a database where access is cumbersome and slower
+
+BLL: Business Logic Layer
+- This objects are built from data in the database such that it groups data in logical entities, for example
+  user, address, contact info, can be in separate tables and then grouped
+  
+Cache:
+- Application cache is well understood and can be used where it makes sense
+- Security cache is a concept I invented and it allows for very fast authorization as follows:
+  * Authorization usually requires a database trip, in order to minimize these...
+  * the first authorization cannot avoid database access, it is obtained based in data supplied to the function 
+  * a checksum is calculated from the data and a TTL Time to Live is assigned to the authorization in the cache 
+    handler if it succeeded
+  * the second time checksum is calculated and checked in the cache handler, TTL is updated if success
+- All CRUDL operations are cached
+- Computationally expensive, data intensive, operations that can reasonably be expected to be reused, are cached
+  
+Security:
+AUTHORIZATION: hybrid approach
+RBAC (Role Based Access Control) 
+MAC (Mandatory Access Control): roles assigned to allowed API calls in a matrix
+DAC (Discretionary Access Control): access to data assigned by owner or whoever the owner grants management rights
+NOTE: DAC would allow for the creation of fleet groups, that can be managed say by an assigned person to this task
+
+-is user authenticated? (OAuth2, which uses the user unique identity)
+-authorization cache, holds information coming from the database
+-authorization context, once admin module goes live, app auth data
+-all fleet managers have an auth context, all apps owned by this manager use it by default
+-any changes to auth data, will invalidate vectors (all?) to avoid loopholes
+-role based auth, can the user run the action? use a matrix
+-authorize on data, does auth context allow use of this particular app? has to get data, but will be vectorized/cached
+-keep user stats on auth, can react to brute force atacks by banning the user for a while, and of course email
+-each manager should have an auth context, else auth can only be obtained from override
+-managers are allowed some or all applications
+-prevent DOS by keeping stats per user (use logarithmic time function?)
+
+RBAC model mappings:
+SystemAdmin is like root, all is allowed, account can be disabled
+U = User(email)
+R = Role = User, Fleet Manager, Admin, Vehicle(includes Device), System/Application (all other denied access) 
+P = Permissions = role based permission to an activity, identity based permission to data
+S = Session = A mapping involving URP
+-A user can have multiple roles.
+-A role can have multiple users.
+-A role can have many permissions.
+-A permission can be assigned to many roles.
+-An operation can be assigned many permissions.
+-A permission can be assigned to many operations.
+
+http://en.wikipedia.org/wiki/Role-based_access_control
+https://www.owasp.org/index.php/Guide_to_Authorization
+https://www.owasp.org/index.php/Access_Control_Cheat_Sheet
+https://crackstation.net/hashing-security.htm
+
+The use of RBAC to manage user privileges within a single system or application is widely accepted as a best practice. Applications including Oracle DBMS, PostgreSQL 8.1, SAP R/3, ISIS Papyrus, FusionForge, Wikipedia, Microsoft Lync, Microsoft Active Directory, Microsoft SQL Server and operating systems implementing SELinux (Linux, Solaris and some other Unix-like operating systems), grsecurity (Linux), TrustedBSD (FreeBSD), and many others effectively implement some form of RBAC. 
+
+Privacy:
+- We should only process data that can be correlated to PII (personally identifiable information)
+- We should implement the system such that these correlations aren't easily deduced by external agents
+- We should not be so restrictive while adhering to rules, that the company misses out on future opportunities
+  for data analysis that would benefit both customer and company
+- We should let the user know and let them decide what level of processing they would allow us to do, in compliance
+  with law in order to avoid future incidents and poor customer perception of the company
+
+Testing:
+- Simulators of various types should be built, this provides better isolation
+- The whole system should be able to run completely disconnected in a laptop using these simulators
+- This way we can learn performance characteristics and optimize
+- We can inject bad data or malicious code and check for vulterabilities
+- We can age the system and observe proper reliability, such as archival and db reindexing, etc...
+
+Types of tests:
+-Unit Tests:
+  If you think about it, the system really just moves data around, a lot of the data comes from the DataStore, and 
+    we also do input validation. Many of the classes for the entities we use simply contain data which we access 
+    through accessor methods. It makes no sense to write code to unit tests these types of object, not only would it 
+    be time consuming but it would serve no purpose, because we would in essence be testing the Java Virtual Machine.
+    So we have unit tests for the types of objects that most need it and our limited time allowed.
+-Integration Tests:
+  Tests most of the system locally, Currently the tests perform CRUDL operations and some of the API calls are done 
+    as well. All security related code is also excersized
+-System Load Tests:
+  These evaluate the performance characteristics of the system, excluding parts of the system, such as the environment
+    in which it is to run. Allows us to observe the system more or less in isolation. The Java SDK has a tool that 
+    enables us to observe the internals of the system while in operation. We can see many things such as garbage 
+    collection, memory and cpu usage, where the system spends most of its time, thread details, etc...
+-Multithreading Tests:
+  The system does not make use of threads directly. That is, we do not create threads for any type of purpose directly,
+    though this might be done for us by the AppEngine system. This is beyond our control and can vary from AppEngine 
+    version to version.
+    AppEngine allows us to configure our system as Thread Safe or not. This has a few performance implications. The best 
+    option is Thread safe. Thread unsafe would mean that for every API call if the system is busy servicing a previous API call,
+    it would create a new instance of our application. This is extremely ugly and the cloud system would then shut them down
+    again, and repeat this process. Even though the system is light weight, it doesn't mean we should ignore concurrency.
+    I've chosen to make the system Thread Safe, since it's the best option. To effect this I had to make a lot of the containers
+    thread safe, by either choosing thread safe containers which are a bit less performant than their concurrency unaware
+    counterparts, and by choosing immutable data whenever possible. I've also used the Iterable interface to pass around
+    collections of objects, this also has the nice effect that most of the time objects are not copied unnecessarily.
+    A thread safe appengine app can be called for more than one service call concurrently. The appengine run-time decides 
+    on the algorithms and is beyond our control. This provides for a better user experience since the in-memory cache 
+    system can be reused. Also, the system does not have to be stopped and started too frequently as load increases.
+    I found that there were some limitations in these types of tests due to the way the JDO library works and the implications
+    of how threads work when accessing data.
+
+System Resiliency:
+- It is inevitable that there will be problems with the system or other dependencies, it is important to either react and fix
+  these upon event or at least fail gracefully
+- We should also built fail safe mechanisms. 
+- For example, let's say that a user is making a payment, there is a standard way to handle when errors happen here
+- Another example, let's say the application is down because AppEngine failed (actually this happen to me, fortunately I had
+  built in the necessary handling mechanisms, and no issue was experienced by the user) the work load can be saved into a
+  task queue, so that the user's work is not lost. Or if the network is down altogether, we make use of web storage so that
+  the front end can save the work locally in the computer and later on be transmitted. 
+- If at any point nothing can be done to save the work, we must let the user know, so that appropriate measures can be taken.
+
+Logs:
+- Reasonable logging must be done in order to detect warnings or errors and proactively fix any issues, before they cause damage
+- Perhaps we could write a log processor in order to automatically find these issues and email the developers.
+
+Monitoring:
+- Available through GCP Tools
+
+----------------------------------------------------------------------------------------------------------  
+Database Schema (very WIP, I need to see more details from telematics (devices) and give more thought to financials)
+
+Entities:
+- User: Name, Address, Contact, UserTypes
+- Vehicle:
+- Device: Telematic Device
+- Fleet: (A user may purchase more than 1 ev, so dimmed a fleet)
+- Contract: (holds financial data for vehicle or fleet aquisition)
+- Payment
+- Invoice
+
+Contract:
+-ID
+-UserID
+-Vehicle Count 
+-Total Cost
+-Terms: Weekly/Monthly/etc
+-Date of Purchase
+-Date of First Payment
+
+Payment:
+-ID
+-AquisitionID
+-Amount
+-Date
+
+Invoice:
+-ID
+-PaymentID
+-Status
+-Date
+
+Vehicle/Device Event:
+-ID
+-DateTimestamp
+-Status
+-GeoLocation(Lat/Long/Alt)
+-Speed
+-Direction
+-Odometer
+-Address
+
+Vehicle:
+-ID:	
+-Driver ID:	
+-Vehicle Description:	
+-Short Name:	
+-Vehicle Make:	
+-Vehicle Model:	
+-VIN
+-License Plate:	
+-License Expiration:	
+-Color
+-Map Route Color:	
+-Maximum Speed:	
+-Economy:	
+-Battery Capacity:	
+
+Device:
+-ID
+-Firmware Version:	
+-Active:	
+-Device Type:	
+-Device Status:	
+-IMEI/ESN Number:	
+-Serial Number:	
+-SIM Phone#:	
+-SMS Email Address:	
+-Group Pushpin ID:	
+
+
+Units of Measure:
+-Speed Units: mph
+-Distance Units: Miles
+-Volume Units: gal
+-Economy Units: mpg
+-Pressure Units: kPa
+-Temperature Units: F
+-Latitude/Longitude Format: Degrees
+
+######################################################################################
+
+APP ENGINE FEATURES:
+App Identity
+End Points
+Mail
+Memcache memcache.set('key', 'gzipped-value', flags=1)
+Oauth
+URL Fetch
+Users
+Task Queues
+Channels
+??
+Images
+
+DATA
+DataStore NDB
+
+

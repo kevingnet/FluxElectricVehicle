@@ -1,0 +1,92 @@
+FLUX's MISSION:
+To make EVs practical and affordable for anyone who needs reliable, cost-effective transportation. 
+
+Why I feel I'm the best match for this position at FLUX?
+
+I'm mission driven, very motivated, highly productive, adhere to standards and best practices which benefit the company
+by having technology that is fast, small, nimble, easy to understand and adapt. I have extensive experience with a proven
+track record and have references of previous reports to and peers that can corroborate my accomplishments. I've never had
+a failure due to my performance or other technological reasons. The more successful projects I've worked on have been 
+those where I was given the opportunity to take them to their completion from start. I'm very frugal with resources, I do
+not require purchasing software, tools, systems, etc... I try to leverage open source and also learn from others' successes
+and failures. I try to follow technology trends but have a critical eye for when to apply them and when not to. For example
+microservices has been the latest buzz, and they have their uses, it allows for a clean architecture and that's nice, but
+we also have to take consideration for performance. It's been proven that users including myself are quite impatient with
+applications that are slow and will not way for a full second for a page to load. So a great user experience that provides
+good performance will lead over the competition. It is that edge that will make a customer chose you over other companies.
+
+Responsibilities:
+
+-Execute a vision for a seamless customer lifecycle experience, starting at vehicle selection and ordering through to bill pay and customer service
+  GCP AppEngine Application, fast, easy to use, good looking, processing for backend goes in backend, application will not
+    be chatty (few server trips) and process anything that can be processed in the client, enhancing the user experience and
+    server performance.
+
+-Prioritize data fidelity and IT security
+  OAuth2 + Security Module, Best Practices with consideration for privacy, RBAC + the addition of Attribute based Auth, these
+    are recommencations from SEI and OWASP, my security module is unique in that it covers all those aspects, while using 
+    caching and it's very out of the way from the application and extremely fast, millions of checks per second on a laptop.
+  Database Schema designed with this in mind, both SQL and nosql, nosql for data reception from devices, background 
+    processes to import to Google sql
+
+-Ensure that technological resources meet the company's short and long-term needs
+  We can go with Google's Stack because I can deliver this much faster, and it's easier to scale automatically as needed,
+    plus security appers to be better than AWS. Both are great, but in the interest of speed of delivery I'm more experienced
+    here, regardless if it's 'the best' decision, we can always port over the application from appengine to aws if needed in
+    the future, the code base will be decoupled enough, so that inherent dependencies can be contained in modules.
+
+Links that show comparisons between AWS and Google, 
+***TLDR; AWS is a somewhat more favored, although Google has improved somewhat the last couple of years
+https://www.trustradius.com/compare-products/aws-elastic-beanstalk-vs-google-app-engine
+https://sada.com/insights/blog/gae-vs-gce-deploying-app/
+https://stackshare.io/stackups/aws-lambda-vs-google-app-engine
+https://kinsta.com/blog/google-cloud-vs-aws/
+
+{
+    -Create timelines for the development and deployment of all technological services
+    -Make executive decisions on behalf of the company's technological requirements
+    -Act as a mentor to team members
+    -Maintain a consumer-focused mindset
+    -Manage technology budgets
+    -Stay on top of technology trends and developments
+    -Ensure all technology practices adhere to regulatory standards
+} = Yes!
+
+Requirements:
+
+-8+ years working in a software development role
+  25+ years of experience in technology in many industries
+  
+-3+ years of managerial experience
+  1 year as a team lead, with many years of mentoring experience. However I've extensive leadership experience where
+    I've taken several doom to fail projects and see them to completion in amazing time lines successfully
+
+-Consumer fintech and/or automotive experience
+  I used to be an auto mechanic for almost two years, I learned on my own as a teen, and was the master mechanic at a shop.
+    As for fintech, I've written several applications that handle company data including accounting and invoicing systems.
+
+-Demonstrated history of success delivering MVP product
+  Any time when I'm given the opportunity I've delivered much more than a MVP, always thinking about the critical users and
+    their satisfaction.
+
+-Exceptional process management skills
+  The use of my time is very focused and yields incredible productivity, for startups I've worn many hats as the company needs
+
+-Excellent verbal and written communication
+  Ability to write documentation, with diagrams, and also convey information verbally to non technical audiences, I was a 
+    member of Toast Masters, so I can speak in public as well, I was also #1 salesman many months during high school selling
+    encyclopaedias door to door
+
+-Ability to delegate efficiently
+  Here is where I might need a little help, I tend to take it upon myself to get things done if they don't go as fast, and
+    they never go quite as fast, I've never encountered anyone that can work at my pace, I don't mean to brag, but this 
+    has been my observation and experience. So I have to learn and adapt to more reasonable pace of others to better work
+    in parallel
+
+
+I loved this:
+So why is it that when 70% of the population says they’re interested in EVs less than 3% of all purchases are actually electric? We’re out to change that with innovative customer acquisition and financing solutions.
+
+A very reasonable question. The solution is to provide an excellent customer experience, not just technologically but 
+company wide that delivers and makes evident to the customer that it is to their best advantage to engage with Flux.
+
